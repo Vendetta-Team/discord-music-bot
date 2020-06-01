@@ -24,7 +24,7 @@ async function addqueue(client, args, message, music) {
         music[message.guild.id].connection = await message.member.voice.channel.join();
     } else {
         if (message.member.voice.channel != message.guild.me.voice.channel) {
-            message.reply('봇과 같은 채널에서 사용해주세요')
+            message.reply('Please use it in the same channel as the bot')
             return;
         }
     }
@@ -51,18 +51,18 @@ async function play(client, args, message, music) {
         console.log(typeof music[message.guild.id].queue[0].url)
         console.log('get playing')
         music[message.guild.id].queue[0].dispatcher = await music[message.guild.id].connection.play(ytdl(music[message.guild.id].queue[0].url, { filter: 'audioonly', volume: music[message.guild.id].volume }))
-        message.channel.send(`<@!${music[message.guild.id].queue[0].requester}>님이 신청하신 ${music[message.guild.id].queue[0].title}이 재생됩니다.`)
+        message.channel.send(`now playing ${music[message.guild.id].queue[0].title}\nrequester : <@!${music[message.guild.id].queue[0].requester}>`)
         music[message.guild.id].queue[0].dispatcher.once('finish', () => {
             end(client, args, message, music)
         })
     } catch (e) {
-        message.reply(`곡을 재생하는 도중 에러가 발생하였습니다\nhttps://vendetta-team.glitch.me/ 에 문의해주세요.`)
+        message.reply(`An error occurred while playing a song\nhttps://vendetta-team.glitch.me/ Please contact us.`)
         console.log(e)
     }
 }
 
 async function search(client, args, message, music) {
-    const msg = await message.channel.send(`${args.join(" ")}를(을) 검색 중입니다`);
+    const msg = await message.channel.send(`Searching for ${args.join(" ")}`);
     ytsearch(args.join(" "), async (err, res) => {
         msg.delete();
         let videos = res.videos.slice(0, 10);
@@ -70,11 +70,11 @@ async function search(client, args, message, music) {
         for (var i in videos) {
             resp += `**[${parseInt(i) + 1}]:** ${videos[i].title}\n`;
         }
-        resp += `\n<@${message.author.id}> **\n\`1~${videos.length}\`**중 원하는 번호를 고르세요`
-        const infomsg = await message.channel.send(`🔎 \`\`${args.join(" ")}\`\` 의 검색 결과\n${resp}`);
+        resp += `\n<@${message.author.id}> **\n\`1~${videos.length}\`**\nChoose the number you want`
+        const infomsg = await message.channel.send(`🔎 \`\`Search result of ${args.join(" ")}\`\`\n${resp}`);
         const filter = (m) => {
             if (m.author.id === message.author.id) {
-                if (m.content.startsWith("c") || m.content.startsWith("$재생")) {
+                if (m.content.startsWith("c") || m.content.startsWith("!play")) {
                     return true;
                 } else if (!isNaN(m.content) && m.content < videos.length + 1 && m.content > 0 && m.author.id == message.author.id) {
                     return true;
@@ -85,16 +85,16 @@ async function search(client, args, message, music) {
         collector.videos = videos;
         collector.once('collect', function (m) {
             infomsg.delete();
-            if (m.content.startsWith("$재생")) {
-                message.reply("검색을 취소합니다")
+            if (m.content.startsWith("!play")) {
+                message.reply("Cancelled")
                 return
             }
             if (m.content.startsWith("c")) {
-                message.reply("검색을 취소합니다")
+                message.reply("Cancelled")
                 return
             }
             if (m.content.startsWith("C")) {
-                message.reply("검색을 취소합니다")
+                message.reply("Cancelled")
                 return
             }
             console.log([this.videos[parseInt(m.content) - 1].url])
@@ -109,11 +109,14 @@ async function end(client, args, message, music) {
             song = await music[message.guild.id].queue.shift()
             play(client, args, message, music)
         } else {
-            message.channel.send('신청곡들을 모두 재생하였습니다.\n뮤직을 종료합니다.')
+            message.channel.send('All the requested songs have been played.\nMusic ends.')
             music[message.guild.id].queue[0].dispatcher.destroy();
+            music[message.guild.id].queue = {}
+            music[message.guild.id].connection = null
+            message.guild.me.voice.channel.leave();
         }
     } catch (e) {
-        message.reply(`곡을 끝내는 도중 에러가 발생하였습니다\nhttps://vendetta-team.glitch.me/ 에 문의해주세요.`)
+        message.reply(`An error occurred while ending the song\nhttps://vendetta-team.glitch.me/ Please contact us.`)
         console.log(e)
     }
 }
@@ -121,9 +124,9 @@ async function end(client, args, message, music) {
 async function volume(client, vol, message, music) {
     try {
         await music[message.guild.id].queue[0].dispatcher.setVolume(vol / 100)
-        message.reply(`곡의 볼륨을 ${vol}로 설정하였습니다.`)
+        message.reply(`volume is now set ${vol}`)
     } catch (e) {
-        message.reply(`볼륨을 설정하는 도중 에러가 발생하였습니다\nhttps://vendetta-team.glitch.me/ 에 문의해주세요.`)
+        message.reply(`An error occurred while setting the volume\nhttps://vendetta-team.glitch.me/ Please contact us.`)
         console.log(e)
     }
 }
@@ -131,9 +134,9 @@ async function volume(client, vol, message, music) {
 async function pause(client, args, message, music) {
     try {
         await music[message.guild.id].queue[0].dispatcher.pause()
-        message.reply('곡을 일시정지 했습니다.')
+        message.reply('The song has been paused.')
     } catch (e) {
-        message.reply(`곡을 일시정지하는 도중 에러가 발생하였습니다\nhttps://vendetta-team.glitch.me/ 에 문의해주세요.`)
+        message.reply(`An error occurred while pausing the song\nhttps://vendetta-team.glitch.me/ Please contact us.`)
         console.log(e)
     }
 }
@@ -141,9 +144,9 @@ async function pause(client, args, message, music) {
 async function skip() {
     try {
         await music[message.guild.id].queue[0].dispatcher.end();
-        message.reply('성공적으로 곡을 스킵했습니다.')
+        message.reply('The song was successfully skipped.')
     } catch (e) {
-        message.reply(`곡을 스킵하는 도중 에러가 발생하였습니다\nhttps://vendetta-team.glitch.me/ 에 문의해주세요.`)
+        message.reply(`The song was successfully skipped.\nhttps://vendetta-team.glitch.me/ Please contact us.`)
         console.log(e)
     }
 }
@@ -151,9 +154,9 @@ async function skip() {
 async function resume(client, args, message, music) {
     try {
         await music[message.guild.id].queue[0].dispatcher.resume()
-        message.reply('곡을 재시작 했습니다.')
+        message.reply('The song has been restarted.')
     } catch (e) {
-        message.reply(`곡을 재시작 하는 도중 에러가 발생하였습니다\nhttps://vendetta-team.glitch.me/ 에 문의해주세요.`)
+        message.reply(`An error occurred while restarting the song\nhttps://vendetta-team.glitch.me/ Please contact us.`)
         console.log(e)
     }
 }
@@ -178,16 +181,16 @@ client.on('message', async (message) => {
                 }
             }
             if (!message.member.voice.channel) {
-                message.reply('통화방에 먼저 들어가주세요')
+                message.reply('Please enter the voice channel first')
                 return;
             }
             if (!args[0]) {
-                message.reply('재생할 곡을 함께 언급해주세요')
+                message.reply('Please mention the song you want to play')
                 return;
             }
             addqueue(client, args, message, music)
         } catch (e) {
-            message.reply(`곡을 신청하는 도중 에러가 발생하였습니다\nhttps://vendetta-team.glitch.me/ 에 문의해주세요.`)
+            message.reply(`An error occurred while requesting a song\nhttps://vendetta-team.glitch.me/ Please contact us.`)
             console.log(e)
         }
     }
@@ -203,46 +206,29 @@ client.on('message', async (message) => {
                 }
             }
             if (message.member.voice.channel != message.guild.me.voice.channel) {
-                message.reply('봇과 같은 채널에서 사용해주세요')
+                message.reply('Please use it in the same channel as the bot')
                 return;
             }
             if (!args[0]) {
-                message.reply(`현재 볼륨 : ${music[message.guild.id].volume}`)
+                message.reply(`Volume : ${music[message.guild.id].volume}`)
                 return;
             }
             if (isNaN(args[0])) {
-                message.reply('알맞은 볼륨을 적어주세요.')
+                message.reply('Please write the right volume.')
                 return;
             }
             if (args[0] > 150) {
-                message.reply('볼륨은 150 보다 클 수 없습니다.')
+                message.reply('Volume cannot be greater than 150.')
                 return;
             }
             if (args[0] < 0) {
-                message.reply('볼륨은 0보다 작을 수 없습니다.')
+                message.reply('Volume cannot be less than 0.')
                 return;
             }
             volume(client, args[0], message, music)
         } catch (e) {
-            message.reply('볼륨을 지정하는 도중 에러가 발생하였습니다.\nhttps://vendetta-team.glitch.me/ 에 문의해주세요.')
+            message.reply('An error occurred while specifying the volume.\nhttps://vendetta-team.glitch.me/ Please contact us.')
             console.log(e)
-        }
-    }
-    if (command === "cmd") {
-        if (message.author.id !== '589525017352601621' && message.author.id !== '490829962769727498') return;
-        try {
-            let codein = args.join(" ");
-            let code = eval(codein);
-            if (typeof code !== 'string')
-                code = require('util').inspect(code, { depth: 0 });
-            let embed = new Discord.MessageEmbed()
-                .setAuthor('이블')
-                .setColor('RANDOM')
-                .addField(':inbox_tray: 코드', `\`\`\`js\n${codein}\`\`\``)
-                .addField(':outbox_tray: 출력', `\`\`\`js\n${code}\n\`\`\``)
-            message.channel.send(embed)
-        } catch (e) {
-            message.channel.send(`\`\`\`js\n${e}\n\`\`\``);
         }
     }
     if (command == 'pause') {
@@ -257,16 +243,16 @@ client.on('message', async (message) => {
                 }
             }
             if (message.member.voice.channel != message.guild.me.voice.channel) {
-                message.reply('봇과 같은 채널에서 사용해주세요')
+                message.reply('Please use it in the same channel as the bot')
                 return;
             }
             if (music[message.guild.id].queue[0]) {
                 pause(client, args, message, music)
             } else {
-                message.reply('일시정지할 곡이 없습니다.')
+                message.reply('There is no song to pause.')
             }
         } catch (e) {
-            message.reply('스킵을 요청하는 도중 에러가 발생하였습니다.\nhttps://vendetta-team.glitch.me/ 에 문의해주세요.')
+            message.reply('An error occurred while requesting skip.\nhttps://vendetta-team.glitch.me/ Please contact us.')
             console.log(e)
         }
     }
@@ -282,16 +268,16 @@ client.on('message', async (message) => {
                 }
             }
             if (message.member.voice.channel != message.guild.me.voice.channel) {
-                message.reply('봇과 같은 채널에서 사용해주세요')
+                message.reply('Please use it in the same channel as the bot')
                 return;
             }
             if (music[message.guild.id].queue[0]) {
                 resume(client, args, message, music)
             } else {
-                message.reply('재실행할 곡이 없습니다.')
+                message.reply('There are no songs to resume.')
             }
         } catch (e) {
-            message.reply('재실행을 요청하는 도중 에러가 발생하였습니다.\nhttps://vendetta-team.glitch.me/ 에 문의해주세요.')
+            message.reply('An error occurred while requesting resume.\nhttps://vendetta-team.glitch.me/ Please contact us.')
             console.log(e)
         }
     }
@@ -307,16 +293,16 @@ client.on('message', async (message) => {
                 }
             }
             if (message.member.voice.channel != message.guild.me.voice.channel) {
-                message.reply('봇과 같은 채널에서 사용해주세요')
+                message.reply('Please use it in the same channel as the bot')
                 return;
             }
             if (music[message.guild.id].queue[0]) {
                 skip()
             } else {
-                message.reply('곡이 없습니다')
+                message.reply('There are no songs')
             }
         } catch (e) {
-            message.reply('스킵을 요청하는 도중 에러가 발생하였습니다.\nhttps://vendetta-team.glitch.me/ 에 문의해주세요.')
+            message.reply('An error occurred while requesting a skip.\nhttps://vendetta-team.glitch.me/ Please contact us.')
             console.log(e)
         }
     }
