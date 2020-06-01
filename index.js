@@ -121,9 +121,10 @@ async function end(client, args, message, music, lang) {
     }
 }
 
-async function volume(client, vol, message, music, lang) {
+async function volume(client, vol, message, music) {
     try {
         await music[message.guild.id].queue[0].dispatcher.setVolume(vol / 100)
+        music[message.guild.id].volume = vol / 100
         message.reply(`volume is now set ${vol}`)
     } catch (e) {
         message.reply(`An error occurred while setting the volume\nhttps://vendetta-team.glitch.me/ Please contact us.`)
