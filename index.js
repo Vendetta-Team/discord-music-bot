@@ -9,23 +9,23 @@ client.on('ready', () => {
     console.log('bot is online')
 })
 
-async function play(client, args, music) {
+async function play(client, args, message, music) {
     try {
         music.queue.dispatcher = await connection.play(ytdl(music[message.guild.id].queue[0].url, { filter: 'audioonly', volume: music[message.guild.id].volume }));
         message.channel.send(`<@!${music[message.guild.id].queue[0].requester}>님이 신청하신 ${music.queue[0].title}이 재생됩니다.`)
         music.dispatcher.once('finish', () => {
-            end(client, args, music)
+            end(client, args, message, music)
         })
     } catch (e) {
         message.reply(`곡을 일시정지하는 도중 에러가 발생하였습니다\nhttps://vendetta-team.glitch.me/ 에 문의해주세요.`)
     }
 }
 
-async function end(client, args, music) {
+async function end(client, args, message, music) {
     try {
         if (music[message.guild.id].queue.length > 0) {
             song = await music[message.guild.id].queue.shift()
-            play(client, args, music)
+            play(client, args, message, music)
         } else {
             message.channel.send('신청곡들을 모두 재생하였습니다.\n뮤직을 종료합니다.')
             music[message.guild.id].dispatcher.destroy();
@@ -44,7 +44,7 @@ async function volume(client, vol, music) {
     }
 }
 
-async function pause(client, args, music) {
+async function pause(client, args, message, music) {
     try {
         await music[message.guild.id].queue.dispatcher.pause()
         message.reply('곡을 일시정지 했습니다.')
@@ -53,7 +53,7 @@ async function pause(client, args, music) {
     }
 }
 
-async function resume(client, args, music) {
+async function resume(client, args, message, music) {
     try {
         await music[message.guild.id].queue.dispatcher.resume()
         message.reply('곡을 재시작 했습니다.')
@@ -94,7 +94,7 @@ client.on('message', (message) => {
                 requester: message.author.id
             })
             if (!music.queue.dispatcher) {
-                play(client, args, music)
+                play(client, args, message, music)
             } else {
                 message.reply('request succese')
             }
@@ -125,10 +125,10 @@ client.on('message', (message) => {
         }
     }
     if (command == 'pause') {
-        pause(client, args, music)
+        pause(client, args, message, music)
     }
     if (command == 'resume') {
-        resume(client, args, music)
+        resume(client, args, message, music)
     }
 })
 
