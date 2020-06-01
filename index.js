@@ -103,11 +103,11 @@ async function search(client, args, message, music) {
     });
 }
 
-async function end(client, args, message, music) {
+async function end(client, args, message, music, lang) {
     try {
         if (music[message.guild.id].queue.length > 1) {
             song = await music[message.guild.id].queue.shift()
-            play(client, args, message, music)
+            play(client, args, message, music, lang)
         } else {
             message.channel.send('All the requested songs have been played.\nMusic ends.')
             music[message.guild.id].queue[0].dispatcher.destroy();
@@ -121,7 +121,7 @@ async function end(client, args, message, music) {
     }
 }
 
-async function volume(client, vol, message, music) {
+async function volume(client, vol, message, music, lang) {
     try {
         await music[message.guild.id].queue[0].dispatcher.setVolume(vol / 100)
         message.reply(`volume is now set ${vol}`)
@@ -131,7 +131,17 @@ async function volume(client, vol, message, music) {
     }
 }
 
-async function pause(client, args, message, music) {
+async function skip(client, args, message, music, lang) {
+    try {
+        await music[message.guild.id].queue[0].dispatcher.end();
+        message.reply('The song was successfully skipped.')
+    } catch (e) {
+        message.reply(`An error occurred while skiping the song.\nhttps://vendetta-team.glitch.me/ Please contact us.`)
+        console.log(e)
+    }
+}
+
+async function pause(client, args, message, music, lang) {
     try {
         await music[message.guild.id].queue[0].dispatcher.pause()
         message.reply('The song has been paused.')
@@ -141,17 +151,7 @@ async function pause(client, args, message, music) {
     }
 }
 
-async function skip() {
-    try {
-        await music[message.guild.id].queue[0].dispatcher.end();
-        message.reply('The song was successfully skipped.')
-    } catch (e) {
-        message.reply(`The song was successfully skipped.\nhttps://vendetta-team.glitch.me/ Please contact us.`)
-        console.log(e)
-    }
-}
-
-async function resume(client, args, message, music) {
+async function resume(client, args, message, music, lang) {
     try {
         await music[message.guild.id].queue[0].dispatcher.resume()
         message.reply('The song has been restarted.')
@@ -162,8 +162,8 @@ async function resume(client, args, message, music) {
 }
 
 client.on('message', async (message) => {
-    if (message.author.bot) return; //봇 사용자가 봇일시 무시합니다
-    if (message.channel.type === "dm") return;//봇 사용채널이 개인 메세지일시 무시합니다S
+    if (message.author.bot) return;
+    if (message.channel.type === "dm") return;
     if (message.content.indexOf(prefix) !== 0) return;
 
     const args = message.content.slice(prefix.length).trim().split(/ +/g);
@@ -188,7 +188,7 @@ client.on('message', async (message) => {
                 message.reply('Please mention the song you want to play')
                 return;
             }
-            addqueue(client, args, message, music)
+            addqueue(client, args, message, music, lang)
         } catch (e) {
             message.reply(`An error occurred while requesting a song\nhttps://vendetta-team.glitch.me/ Please contact us.`)
             console.log(e)
@@ -225,7 +225,7 @@ client.on('message', async (message) => {
                 message.reply('Volume cannot be less than 0.')
                 return;
             }
-            volume(client, args[0], message, music)
+            volume(client, args[0], message, music, lang)
         } catch (e) {
             message.reply('An error occurred while specifying the volume.\nhttps://vendetta-team.glitch.me/ Please contact us.')
             console.log(e)
@@ -247,12 +247,12 @@ client.on('message', async (message) => {
                 return;
             }
             if (music[message.guild.id].queue[0]) {
-                pause(client, args, message, music)
+                pause(client, args, message, music, lang)
             } else {
                 message.reply('There is no song to pause.')
             }
         } catch (e) {
-            message.reply('An error occurred while requesting skip.\nhttps://vendetta-team.glitch.me/ Please contact us.')
+            message.reply('An error occurred while requesting pause.\nhttps://vendetta-team.glitch.me/ Please contact us.')
             console.log(e)
         }
     }
@@ -272,7 +272,7 @@ client.on('message', async (message) => {
                 return;
             }
             if (music[message.guild.id].queue[0]) {
-                resume(client, args, message, music)
+                resume(client, args, message, music, lang)
             } else {
                 message.reply('There are no songs to resume.')
             }
@@ -297,7 +297,7 @@ client.on('message', async (message) => {
                 return;
             }
             if (music[message.guild.id].queue[0]) {
-                skip()
+                skip(client, args, message, music, lang)
             } else {
                 message.reply('There are no songs')
             }
