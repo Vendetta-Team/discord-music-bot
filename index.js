@@ -60,9 +60,11 @@ async function pause(client, args, message, music) {
 
 async function skip() {
     try {
-
+        music[message.guild.id].queue[0].dispatcher.end();
+        message.reply('성공적으로 곡을 스킵했습니다.')
     } catch (e) {
-
+        message.reply(`곡을 스킵하는 도중 에러가 발생하였습니다\nhttps://vendetta-team.glitch.me/ 에 문의해주세요.`)
+        console.log(e)
     }
 }
 
@@ -97,6 +99,10 @@ client.on('message', async (message) => {
             }
             if (!message.member.voice.channel) {
                 message.reply('통화방에 먼저 들어가주세요')
+                return;
+            }
+            if (message.member.voice.channel != message.guild.me.voice.channel) {
+                message.reply('봇과 같은 채널에서 사용해주세요')
                 return;
             }
             if (!args[0]) {
@@ -136,6 +142,14 @@ client.on('message', async (message) => {
                     queue: [],
                     connection: null
                 }
+            }
+            if (!music[message.guild.id].queue[0].dispatcher) {
+                message.reply('현재는 봇을 사용하는중이 아닙니다')
+                return;
+            }
+            if (message.member.voice.channel != message.guild.me.voice.channel) {
+                message.reply('봇과 같은 채널에서 사용해주세요')
+                return;
             }
             if (!args[0]) {
                 message.reply(`현재 볼륨 : ${music[message.guild.id].volume}`)
@@ -177,41 +191,92 @@ client.on('message', async (message) => {
         }
     }
     if (command == 'pause') {
-        if (!music[message.guild.id]) {
-            music[message.guild.id] = {
-                guild: message.guild.id,
-                channel: message.channel.id,
-                volume: 25,
-                queue: [],
-                connection: null
+        try {
+            if (!music[message.guild.id]) {
+                music[message.guild.id] = {
+                    guild: message.guild.id,
+                    channel: message.channel.id,
+                    volume: 25,
+                    queue: [],
+                    connection: null
+                }
             }
+            if (!music[message.guild.id].queue[0].dispatcher) {
+                message.reply('현재는 봇을 사용하는중이 아닙니다')
+                return;
+            }
+            if (message.member.voice.channel != message.guild.me.voice.channel) {
+                message.reply('봇과 같은 채널에서 사용해주세요')
+                return;
+            }
+            if (music[message.guild.id].queue[0]) {
+                pause(client, args, message, music)
+            } else {
+                message.reply('일시정지할 곡이 없습니다.')
+            }
+        } catch (e) {
+            message.reply('스킵을 요청하는 도중 에러가 발생하였습니다.\nhttps://vendetta-team.glitch.me/ 에 문의해주세요.')
+            console.log(e)
         }
-        pause(client, args, message, music)
     }
     if (command == 'resume') {
-        if (!music[message.guild.id]) {
-            music[message.guild.id] = {
-                guild: message.guild.id,
-                channel: message.channel.id,
-                volume: 25,
-                queue: [],
-                connection: null
+        try {
+            if (!music[message.guild.id]) {
+                music[message.guild.id] = {
+                    guild: message.guild.id,
+                    channel: message.channel.id,
+                    volume: 25,
+                    queue: [],
+                    connection: null
+                }
             }
+            if (!music[message.guild.id].queue[0].dispatcher) {
+                message.reply('현재는 봇을 사용하는중이 아닙니다')
+                return;
+            }
+            if (message.member.voice.channel != message.guild.me.voice.channel) {
+                message.reply('봇과 같은 채널에서 사용해주세요')
+                return;
+            }
+            if (music[message.guild.id].queue[0]) {
+                resume(client, args, message, music)
+            } else {
+                message.reply('재실행할 곡이 없습니다.')
+            }
+        } catch (e) {
+            message.reply('재실행을 요청하는 도중 에러가 발생하였습니다.\nhttps://vendetta-team.glitch.me/ 에 문의해주세요.')
+            console.log(e)
         }
-        resume(client, args, message, music)
     }
     if (command == 'skip') {
-        if (!music[message.guild.id]) {
-            music[message.guild.id] = {
-                guild: message.guild.id,
-                channel: message.channel.id,
-                volume: 25,
-                queue: [],
-                connection: null
+        try {
+            if (!music[message.guild.id]) {
+                music[message.guild.id] = {
+                    guild: message.guild.id,
+                    channel: message.channel.id,
+                    volume: 25,
+                    queue: [],
+                    connection: null
+                }
             }
+            if (!music[message.guild.id].queue[0].dispatcher) {
+                message.reply('현재는 봇을 사용하는중이 아닙니다')
+                return;
+            }
+            if (message.member.voice.channel != message.guild.me.voice.channel) {
+                message.reply('봇과 같은 채널에서 사용해주세요')
+                return;
+            }
+            if (music[message.guild.id].queue[0]) {
+                skip()
+            } else {
+                message.reply('곡이 없습니다')
+            }
+        } catch (e) {
+            message.reply('스킵을 요청하는 도중 에러가 발생하였습니다.\nhttps://vendetta-team.glitch.me/ 에 문의해주세요.')
+            console.log(e)
         }
-        skip()
     }
 })
 
-client.login('token')
+client.login('토큰')
