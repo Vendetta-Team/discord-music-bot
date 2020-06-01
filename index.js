@@ -132,4 +132,4 @@ client.on('message', async (message) => {
     }
 })
 
-client.login('NTk4NTE0ODU1MzA1MjgxNTY4.XtSyPw.vw13z8oHJFf8V5iO3vQ2pA0-bJw')
+client.login('토큰')
