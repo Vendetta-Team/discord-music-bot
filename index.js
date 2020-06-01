@@ -219,6 +219,10 @@ client.on('message', async (message) => {
                 message.reply('Please write the right volume.')
                 return;
             }
+            if(args[0] == music[message.guild.id].volume){
+                message.reply(`Volume is already ${args[0]}`)
+                return;
+            }
             if (args[0] > 150) {
                 message.reply('Volume cannot be greater than 150.')
                 return;
