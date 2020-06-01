@@ -1,4 +1,4 @@
-This project is Alpha version  
+This project is Beta version  
   
   
-Project Status : in progress
+Project Status : in normal operation
