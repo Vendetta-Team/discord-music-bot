@@ -12,6 +12,7 @@ client.on('ready', () => {
 })
 
 async function addqueue(client, args, message, music) {
+    console.log(args)
     let video = await ytdl.validateURL(args[0]);
     if (!video) {
         return search(client, args, message, music)
@@ -46,6 +47,8 @@ async function addqueue(client, args, message, music) {
 
 async function play(client, args, message, music) {
     try {
+        console.log(music[message.guild.id].queue[0].url)
+        console.log(typeof music[message.guild.id].queue[0].url)
         console.log('get playing')
         music[message.guild.id].queue[0].dispatcher = await music[message.guild.id].connection.play(ytdl(music[message.guild.id].queue[0].url, { filter: 'audioonly', volume: music[message.guild.id].volume }));
         message.channel.send(`<@!${music[message.guild.id].queue[0].requester}>님이 신청하신 ${music[message.guild.id].queue[0].title}이 재생됩니다.`)
@@ -94,6 +97,7 @@ async function search(client, args, message, music) {
                 message.reply("검색을 취소합니다")
                 return
             }
+            console.log([this.videos[parseInt(m.content) - 1].url])
             addqueue(client, [this.videos[parseInt(m.content) - 1].url], message, music)
         });
     });
