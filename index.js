@@ -6,6 +6,7 @@ client.music = {};
 music = client.music
 
 client.on('ready', () => {
+    client.user.setActivity('Music Test')
     console.log('bot is online')
 })
 
@@ -17,7 +18,8 @@ async function play(client, args, message, music) {
             end(client, args, message, music)
         })
     } catch (e) {
-        message.reply(`곡을 일시정지하는 도중 에러가 발생하였습니다\nhttps://vendetta-team.glitch.me/ 에 문의해주세요.`)
+        message.reply(`곡을 재생하는 도중 에러가 발생하였습니다\nhttps://vendetta-team.glitch.me/ 에 문의해주세요.`)
+        console.log(e)
     }
 }
 
@@ -31,7 +33,8 @@ async function end(client, args, message, music) {
             music[message.guild.id].dispatcher.destroy();
         }
     } catch (e) {
-        message.reply(`곡을 일시정지하는 도중 에러가 발생하였습니다\nhttps://vendetta-team.glitch.me/ 에 문의해주세요.`)
+        message.reply(`곡을 끝내는 도중 에러가 발생하였습니다\nhttps://vendetta-team.glitch.me/ 에 문의해주세요.`)
+        console.log(e)
     }
 }
 
@@ -40,7 +43,8 @@ async function volume(client, vol, message, music) {
         await music[message.guild.id].queue.dispatcher.setVolume(vol)
         message.reply(`곡의 볼륨을 ${vol}로 설정하였습니다.`)
     } catch (e) {
-        message.reply(`곡을 일시정지하는 도중 에러가 발생하였습니다\nhttps://vendetta-team.glitch.me/ 에 문의해주세요.`)
+        message.reply(`볼륨을 설정하는 도중 에러가 발생하였습니다\nhttps://vendetta-team.glitch.me/ 에 문의해주세요.`)
+        console.log(e)
     }
 }
 
@@ -50,6 +54,7 @@ async function pause(client, args, message, music) {
         message.reply('곡을 일시정지 했습니다.')
     } catch (e) {
         message.reply(`곡을 일시정지하는 도중 에러가 발생하였습니다\nhttps://vendetta-team.glitch.me/ 에 문의해주세요.`)
+        console.log(e)
     }
 }
 
@@ -59,6 +64,7 @@ async function resume(client, args, message, music) {
         message.reply('곡을 재시작 했습니다.')
     } catch (e) {
         message.reply(`곡을 재시작 하는 도중 에러가 발생하였습니다\nhttps://vendetta-team.glitch.me/ 에 문의해주세요.`)
+        console.log(e)
     }
 }
 
@@ -100,6 +106,7 @@ client.on('message', async (message) => {
             }
         } catch (e) {
             message.reply(`곡을 신청하는 도중 에러가 발생하였습니다\nhttps://vendetta-team.glitch.me/ 에 문의해주세요.`)
+            console.log(e)
         }
     }
     if (command == 'volume') {
@@ -122,6 +129,7 @@ client.on('message', async (message) => {
             volume(client, args[0], message, music)
         } catch (e) {
             message.reply('볼륨을 지정하는 도중 에러가 발생하였습니다.\nhttps://vendetta-team.glitch.me/ 에 문의해주세요.')
+            console.log(e)
         }
     }
     if (command == 'pause') {
