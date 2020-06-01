@@ -35,9 +35,9 @@ async function end(client, args, message, music) {
     }
 }
 
-async function volume(client, vol, music) {
+async function volume(client, vol, message, music) {
     try {
-        await music.queue.dispatcher.setVolume(vol)
+        await music[message.guild.id].queue.dispatcher.setVolume(vol)
         message.reply(`곡의 볼륨을 ${vol}로 설정하였습니다.`)
     } catch (e) {
         message.reply(`곡을 일시정지하는 도중 에러가 발생하였습니다\nhttps://vendetta-team.glitch.me/ 에 문의해주세요.`)
@@ -72,7 +72,7 @@ client.on('message', (message) => {
 
     if (command == 'play') {
         try {
-            if (!music) {
+            if (!music[message.guild.id]) {
                 music[message.guild.id] = {
                     guild: message.guild.id,
                     channel: message.channel.id,
@@ -85,7 +85,7 @@ client.on('message', (message) => {
                 return;
             }
             let info = await ytdl.getInfo(args[0]);
-            music.queue.push({
+            music[message.guild.id].queue.push({
                 title: info.title,
                 request: message.author.id,
                 thumbnail: `https://img.youtube.com/vi/${info.video_id}/maxresdefault.jpg`,
@@ -93,7 +93,7 @@ client.on('message', (message) => {
                 url: args[0],
                 requester: message.author.id
             })
-            if (!music.queue.dispatcher) {
+            if (!music[message.guild.id].queue.dispatcher) {
                 play(client, args, message, music)
             } else {
                 message.reply('request succese')
@@ -119,7 +119,7 @@ client.on('message', (message) => {
                 message.reply('볼륨은 0보다 작을 수 없습니다.')
                 return;
             }
-            volume(client, vol, music)
+            volume(client, vol, message, music)
         } catch (e) {
             message.reply('볼륨을 지정하는 도중 에러가 발생하였습니다.\nhttps://vendetta-team.glitch.me/ 에 문의해주세요.')
         }
