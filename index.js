@@ -25,12 +25,12 @@ async function play(client, args, message, music) {
 
 async function end(client, args, message, music) {
     try {
-        if (music[message.guild.id].queue.length > 0) {
+        if (music[message.guild.id].queue.length > 1) {
             song = await music[message.guild.id].queue.shift()
             play(client, args, message, music)
         } else {
             message.channel.send('신청곡들을 모두 재생하였습니다.\n뮤직을 종료합니다.')
-            music[message.guild.id].queue[0].queue[0].dispatcher.destroy();
+            music[message.guild.id].queue[0].dispatcher.destroy();
         }
     } catch (e) {
         message.reply(`곡을 끝내는 도중 에러가 발생하였습니다\nhttps://vendetta-team.glitch.me/ 에 문의해주세요.`)
@@ -40,7 +40,7 @@ async function end(client, args, message, music) {
 
 async function volume(client, vol, message, music) {
     try {
-        await music[message.guild.id].queue[0].dispatcher.setVolume(vol)
+        await music[message.guild.id].queue[0].dispatcher.setVolume(vol / 100)
         message.reply(`곡의 볼륨을 ${vol}로 설정하였습니다.`)
     } catch (e) {
         message.reply(`볼륨을 설정하는 도중 에러가 발생하였습니다\nhttps://vendetta-team.glitch.me/ 에 문의해주세요.`)
@@ -55,6 +55,14 @@ async function pause(client, args, message, music) {
     } catch (e) {
         message.reply(`곡을 일시정지하는 도중 에러가 발생하였습니다\nhttps://vendetta-team.glitch.me/ 에 문의해주세요.`)
         console.log(e)
+    }
+}
+
+async function skip() {
+    try {
+
+    } catch (e) {
+
     }
 }
 
@@ -120,11 +128,18 @@ client.on('message', async (message) => {
     }
     if (command == 'volume') {
         try {
-            if (!message.guild.me.voice.channel) {
-                message.reply('뮤직기능을 먼저 사용해주세요')
+            if (!music[message.guild.id]) {
+                music[message.guild.id] = {
+                    guild: message.guild.id,
+                    channel: message.channel.id,
+                    volume: 25,
+                    queue: [],
+                    connection: null
+                }
             }
             if (!args[0]) {
                 message.reply(`현재 볼륨 : ${music[message.guild.id].volume}`)
+                return;
             }
             if (isNaN(args[0])) {
                 message.reply('알맞은 볼륨을 적어주세요.')
@@ -162,11 +177,41 @@ client.on('message', async (message) => {
         }
     }
     if (command == 'pause') {
+        if (!music[message.guild.id]) {
+            music[message.guild.id] = {
+                guild: message.guild.id,
+                channel: message.channel.id,
+                volume: 25,
+                queue: [],
+                connection: null
+            }
+        }
         pause(client, args, message, music)
     }
     if (command == 'resume') {
+        if (!music[message.guild.id]) {
+            music[message.guild.id] = {
+                guild: message.guild.id,
+                channel: message.channel.id,
+                volume: 25,
+                queue: [],
+                connection: null
+            }
+        }
         resume(client, args, message, music)
+    }
+    if (command == 'skip') {
+        if (!music[message.guild.id]) {
+            music[message.guild.id] = {
+                guild: message.guild.id,
+                channel: message.channel.id,
+                volume: 25,
+                queue: [],
+                connection: null
+            }
+        }
+        skip()
     }
 })
 
-client.login('Token')
+client.login('token')
