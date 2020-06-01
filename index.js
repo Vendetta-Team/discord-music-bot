@@ -143,10 +143,6 @@ client.on('message', async (message) => {
                     connection: null
                 }
             }
-            if (!music[message.guild.id].queue[0].dispatcher) {
-                message.reply('현재는 봇을 사용하는중이 아닙니다')
-                return;
-            }
             if (message.member.voice.channel != message.guild.me.voice.channel) {
                 message.reply('봇과 같은 채널에서 사용해주세요')
                 return;
@@ -201,10 +197,6 @@ client.on('message', async (message) => {
                     connection: null
                 }
             }
-            if (!music[message.guild.id].queue[0].dispatcher) {
-                message.reply('현재는 봇을 사용하는중이 아닙니다')
-                return;
-            }
             if (message.member.voice.channel != message.guild.me.voice.channel) {
                 message.reply('봇과 같은 채널에서 사용해주세요')
                 return;
@@ -230,10 +222,6 @@ client.on('message', async (message) => {
                     connection: null
                 }
             }
-            if (!music[message.guild.id].queue[0].dispatcher) {
-                message.reply('현재는 봇을 사용하는중이 아닙니다')
-                return;
-            }
             if (message.member.voice.channel != message.guild.me.voice.channel) {
                 message.reply('봇과 같은 채널에서 사용해주세요')
                 return;
@@ -258,10 +246,6 @@ client.on('message', async (message) => {
                     queue: [],
                     connection: null
                 }
-            }
-            if (!music[message.guild.id].queue[0].dispatcher) {
-                message.reply('현재는 봇을 사용하는중이 아닙니다')
-                return;
             }
             if (message.member.voice.channel != message.guild.me.voice.channel) {
                 message.reply('봇과 같은 채널에서 사용해주세요')
