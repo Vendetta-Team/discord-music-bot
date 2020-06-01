@@ -111,7 +111,7 @@ async function end(client, args, message, music) {
         } else {
             message.channel.send('All the requested songs have been played.\nMusic ends.')
             music[message.guild.id].queue[0].dispatcher.destroy();
-            music[message.guild.id].queue = {}
+            music[message.guild.id].queue = []
             music[message.guild.id].connection = null
             message.guild.me.voice.channel.leave();
         }
