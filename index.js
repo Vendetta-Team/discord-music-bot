@@ -101,10 +101,10 @@ client.on('message', async (message) => {
                 message.reply('통화방에 먼저 들어가주세요')
                 return;
             }
-            if (message.member.voice.channel != message.guild.me.voice.channel) {
-                message.reply('봇과 같은 채널에서 사용해주세요')
-                return;
-            }
+            // if (message.member.voice.channel != message.guild.me.voice.channel) {
+            //     message.reply('봇과 같은 채널에서 사용해주세요')
+            //     return;
+            // } 수정중
             if (!args[0]) {
                 message.reply('재생할 곡을 함께 언급해주세요')
                 return;
