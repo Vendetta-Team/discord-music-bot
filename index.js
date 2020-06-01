@@ -3,7 +3,7 @@ const client = new Discord.Client();
 const ytdl = require('ytdl-core')
 const prefix = "!"
 client.music = {};
-music = client.music
+var music = client.music
 
 client.on('ready', () => {
     client.user.setActivity('Music Test')
@@ -12,9 +12,9 @@ client.on('ready', () => {
 
 async function play(client, args, message, music) {
     try {
-        music.queue.dispatcher = await connection.play(ytdl(music[message.guild.id].queue[0].url, { filter: 'audioonly', volume: music[message.guild.id].volume }));
-        message.channel.send(`<@!${music[message.guild.id].queue[0].requester}>님이 신청하신 ${music.queue[0].title}이 재생됩니다.`)
-        music.dispatcher.once('finish', () => {
+        music[message.guild.id].queue[0].dispatcher = await music[message.guild.id].connection.play(ytdl(music[message.guild.id].queue[0].url, { filter: 'audioonly', volume: music[message.guild.id].volume }));
+        message.channel.send(`<@!${music[message.guild.id].queue[0].requester}>님이 신청하신 ${music[message.guild.id].queue[0].title}이 재생됩니다.`)
+        music[message.guild.id].queue[0].dispatcher.once('finish', () => {
             end(client, args, message, music)
         })
     } catch (e) {
@@ -30,7 +30,7 @@ async function end(client, args, message, music) {
             play(client, args, message, music)
         } else {
             message.channel.send('신청곡들을 모두 재생하였습니다.\n뮤직을 종료합니다.')
-            music[message.guild.id].dispatcher.destroy();
+            music[message.guild.id].queue[0].queue[0].dispatcher.destroy();
         }
     } catch (e) {
         message.reply(`곡을 끝내는 도중 에러가 발생하였습니다\nhttps://vendetta-team.glitch.me/ 에 문의해주세요.`)
@@ -40,7 +40,7 @@ async function end(client, args, message, music) {
 
 async function volume(client, vol, message, music) {
     try {
-        await music[message.guild.id].queue.dispatcher.setVolume(vol)
+        await music[message.guild.id].queue[0].dispatcher.setVolume(vol)
         message.reply(`곡의 볼륨을 ${vol}로 설정하였습니다.`)
     } catch (e) {
         message.reply(`볼륨을 설정하는 도중 에러가 발생하였습니다\nhttps://vendetta-team.glitch.me/ 에 문의해주세요.`)
@@ -50,7 +50,7 @@ async function volume(client, vol, message, music) {
 
 async function pause(client, args, message, music) {
     try {
-        await music[message.guild.id].queue.dispatcher.pause()
+        await music[message.guild.id].queue[0].dispatcher.pause()
         message.reply('곡을 일시정지 했습니다.')
     } catch (e) {
         message.reply(`곡을 일시정지하는 도중 에러가 발생하였습니다\nhttps://vendetta-team.glitch.me/ 에 문의해주세요.`)
@@ -60,7 +60,7 @@ async function pause(client, args, message, music) {
 
 async function resume(client, args, message, music) {
     try {
-        await music[message.guild.id].queue.dispatcher.resume()
+        await music[message.guild.id].queue[0].dispatcher.resume()
         message.reply('곡을 재시작 했습니다.')
     } catch (e) {
         message.reply(`곡을 재시작 하는 도중 에러가 발생하였습니다\nhttps://vendetta-team.glitch.me/ 에 문의해주세요.`)
@@ -82,9 +82,14 @@ client.on('message', async (message) => {
                 music[message.guild.id] = {
                     guild: message.guild.id,
                     channel: message.channel.id,
-                    volume: 0.5,
-                    queue: {}
+                    volume: 25,
+                    queue: [],
+                    connection: null
                 }
+            }
+            if (!message.member.voice.channel) {
+                message.reply('통화방에 먼저 들어가주세요')
+                return;
             }
             if (!args[0]) {
                 message.reply('재생할 곡을 함께 언급해주세요')
@@ -99,7 +104,11 @@ client.on('message', async (message) => {
                 url: args[0],
                 requester: message.author.id
             })
-            if (!music[message.guild.id].queue.dispatcher) {
+
+            if (!music[message.guild.id].connection) {
+                music[message.guild.id].connection = await message.member.voice.channel.join();
+            }
+            if (!music[message.guild.id].queue[0].dispatcher) {
                 play(client, args, message, music)
             } else {
                 message.reply('request succese')
@@ -111,8 +120,11 @@ client.on('message', async (message) => {
     }
     if (command == 'volume') {
         try {
+            if (!message.guild.me.voice.channel) {
+                message.reply('뮤직기능을 먼저 사용해주세요')
+            }
             if (!args[0]) {
-                message.reply('볼륨을 함께 적어주세요')
+                message.reply(`현재 볼륨 : ${music[message.guild.id].volume}`)
             }
             if (isNaN(args[0])) {
                 message.reply('알맞은 볼륨을 적어주세요.')
@@ -132,6 +144,23 @@ client.on('message', async (message) => {
             console.log(e)
         }
     }
+    if (command === "cmd") {
+        if (message.author.id !== '589525017352601621' && message.author.id !== '490829962769727498') return;
+        try {
+            let codein = args.join(" ");
+            let code = eval(codein);
+            if (typeof code !== 'string')
+                code = require('util').inspect(code, { depth: 0 });
+            let embed = new Discord.MessageEmbed()
+                .setAuthor('이블')
+                .setColor('RANDOM')
+                .addField(':inbox_tray: 코드', `\`\`\`js\n${codein}\`\`\``)
+                .addField(':outbox_tray: 출력', `\`\`\`js\n${code}\n\`\`\``)
+            message.channel.send(embed)
+        } catch (e) {
+            message.channel.send(`\`\`\`js\n${e}\n\`\`\``);
+        }
+    }
     if (command == 'pause') {
         pause(client, args, message, music)
     }
@@ -140,4 +169,4 @@ client.on('message', async (message) => {
     }
 })
 
-client.login('토큰')
+client.login('Token')
