@@ -39,7 +39,7 @@ async function addqueue(client, args, message, music) {
 
 
     if (!music[message.guild.id].queue[0].dispatcher) {
-        play(client, args, message, music)
+        play(client, args, message, music).catch(console.error)
     } else {
         message.reply('request succese')
     }
@@ -50,7 +50,7 @@ async function play(client, args, message, music) {
         console.log(music[message.guild.id].queue[0].url)
         console.log(typeof music[message.guild.id].queue[0].url)
         console.log('get playing')
-        music[message.guild.id].queue[0].dispatcher = await music[message.guild.id].connection.play(ytdl(music[message.guild.id].queue[0].url, { filter: 'audioonly', volume: music[message.guild.id].volume }));
+        music[message.guild.id].queue[0].dispatcher = await music[message.guild.id].connection.play(ytdl(music[message.guild.id].queue[0].url, { filter: 'audioonly', volume: music[message.guild.id].volume }))
         message.channel.send(`<@!${music[message.guild.id].queue[0].requester}>님이 신청하신 ${music[message.guild.id].queue[0].title}이 재생됩니다.`)
         music[message.guild.id].queue[0].dispatcher.once('finish', () => {
             end(client, args, message, music)
