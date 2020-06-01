@@ -46,7 +46,7 @@ async function volume(client, vol, music) {
 
 async function pause(client, args, music) {
     try {
-        await music.queue.dispatcher.pause()
+        await music[message.guild.id].queue.dispatcher.pause()
         message.reply('곡을 일시정지 했습니다.')
     } catch (e) {
         message.reply(`곡을 일시정지하는 도중 에러가 발생하였습니다\nhttps://vendetta-team.glitch.me/ 에 문의해주세요.`)
@@ -55,7 +55,7 @@ async function pause(client, args, music) {
 
 async function resume(client, args, music) {
     try {
-        await music.queue.dispatcher.resume()
+        await music[message.guild.id].queue.dispatcher.resume()
         message.reply('곡을 재시작 했습니다.')
     } catch (e) {
         message.reply(`곡을 재시작 하는 도중 에러가 발생하였습니다\nhttps://vendetta-team.glitch.me/ 에 문의해주세요.`)
