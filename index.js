@@ -62,7 +62,7 @@ async function resume(client, args, message, music) {
     }
 }
 
-client.on('message', (message) => {
+client.on('message', async (message) => {
     if (message.author.bot) return; //봇 사용자가 봇일시 무시합니다
     if (message.channel.type === "dm") return;//봇 사용채널이 개인 메세지일시 무시합니다S
     if (message.content.indexOf(prefix) !== 0) return;
@@ -132,4 +132,4 @@ client.on('message', (message) => {
     }
 })
 
-client.login('토큰')
+client.login('NTk4NTE0ODU1MzA1MjgxNTY4.XtSyPw.vw13z8oHJFf8V5iO3vQ2pA0-bJw')
