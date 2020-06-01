@@ -39,7 +39,7 @@ async function addqueue(client, args, message, music) {
 
 
     if (!music[message.guild.id].queue[0].dispatcher) {
-        play(client, args, message, music).catch(console.error)
+        play(client, args, message, music)
     } else {
         message.reply('request succese')
     }
