@@ -119,7 +119,7 @@ client.on('message', (message) => {
                 message.reply('볼륨은 0보다 작을 수 없습니다.')
                 return;
             }
-            volume(client, vol, message, music)
+            volume(client, args[0], message, music)
         } catch (e) {
             message.reply('볼륨을 지정하는 도중 에러가 발생하였습니다.\nhttps://vendetta-team.glitch.me/ 에 문의해주세요.')
         }
