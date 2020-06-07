@@ -65,6 +65,8 @@ async function play(client, args, message, music) {
 async function search(client, args, message, music) {
     const msg = await message.channel.send(`Searching for ${args.join(" ")}`);
     ytsearch(args.join(" "), async (err, res) => {
+        if (err) return message.reply(`An error occurred while search the song\nhttps://vendetta-team.glitch.me/ Please contact us.`)
+        if (!res.videos[0]) return message.reply(`I can't find the song.\nIf you have any problems, please contact https://vendetta-team.glitch.me/`)
         msg.delete();
         let videos = res.videos.slice(0, 10);
         let resp = '';
@@ -75,7 +77,7 @@ async function search(client, args, message, music) {
         const infomsg = await message.channel.send(`🔎 \`\`Search result of ${args.join(" ")}\`\`\n${resp}`);
         const filter = (m) => {
             if (m.author.id === message.author.id) {
-                if (m.content.startsWith("c") || m.content.startsWith("!play")) {
+                if (m.content.toLowerCase().startsWith("c") || m.content.toLowerCase().startsWith("!play")) {
                     return true;
                 } else if (!isNaN(m.content) && m.content < videos.length + 1 && m.content > 0 && m.author.id == message.author.id) {
                     return true;
@@ -86,15 +88,11 @@ async function search(client, args, message, music) {
         collector.videos = videos;
         collector.once('collect', function (m) {
             infomsg.delete();
-            if (m.content.startsWith("!play")) {
+            if (m.content.toLowerCase().startsWith("!play")) {
                 message.reply("Cancelled")
                 return
             }
-            if (m.content.startsWith("c")) {
-                message.reply("Cancelled")
-                return
-            }
-            if (m.content.startsWith("C")) {
+            if (m.content.toLowerCase().startsWith("c")) {
                 message.reply("Cancelled")
                 return
             }
